@@ -3,9 +3,7 @@ import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const archiver = require('archiver');
+import { ZipArchive } from 'archiver';
 import { fileURLToPath } from 'url';
 
 import { cryptoService } from './services/cryptoService.js';
@@ -34,6 +32,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/data/signed_docs', express.static(path.join(__dirname, 'data', 'signed_docs')));
+app.use('/docs', express.static(path.join(__dirname, 'docs')));
 
 // Memory cache for the latest signed/previewed PDF
 let latestSignedPdf = null;
@@ -118,7 +117,7 @@ app.get('/api/users/:id/download/:fileType', (req, res) => {
   const keyFiles = user.keyFiles;
 
   if (fileType === 'zip') {
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
     const cleanName = user.name.replace(/[^a-zA-Z0-9]/g, '_');
     res.attachment(`llaves_${cleanName}.zip`);
 
@@ -286,12 +285,37 @@ app.post(
       if (req.body.userId) {
         const userKeys = userStore.getUserKeyBuffers(req.body.userId);
         if (!userKeys) return res.status(404).json({ success: false, error: 'Usuario firmante no encontrado.' });
+        
+        const inputPassphrase = (req.body.passphrase || '').trim();
+        if (!inputPassphrase) {
+          return res.status(400).json({
+            success: false,
+            error: 'Debe ingresar la contraseña de la llave privada del usuario para autorizar la firma digital.',
+          });
+        }
+
+        // Verify password against user's encrypted keystore password
+        if (userKeys.user.passphrase && inputPassphrase !== userKeys.user.passphrase) {
+          return res.status(401).json({
+            success: false,
+            error: 'Contraseña de la llave privada incorrecta. La firma digital no fue autorizada.',
+          });
+        }
+
         p12Buffer = userKeys.p12Buffer;
-        passphrase = userKeys.user.passphrase;
+        passphrase = inputPassphrase;
         userObj = userKeys.user;
       } else if (req.files?.p12File?.[0]) {
         p12Buffer = fs.readFileSync(req.files.p12File[0].path);
         fs.unlinkSync(req.files.p12File[0].path);
+        const inputPassphrase = (req.body.passphrase || '').trim();
+        if (!inputPassphrase) {
+          return res.status(400).json({
+            success: false,
+            error: 'Debe ingresar la contraseña del archivo .p12 para autorizar la firma digital.',
+          });
+        }
+        passphrase = inputPassphrase;
         userObj = {
           name: req.body.customSignerName || 'Signatario Externo',
           ci: req.body.customSignerCi || 'C.I. Externo',
@@ -301,6 +325,14 @@ app.post(
         };
       } else if (req.body.p12Base64) {
         p12Buffer = Buffer.from(req.body.p12Base64, 'base64');
+        const inputPassphrase = (req.body.passphrase || '').trim();
+        if (!inputPassphrase) {
+          return res.status(400).json({
+            success: false,
+            error: 'Debe ingresar la contraseña del archivo .p12 para autorizar la firma digital.',
+          });
+        }
+        passphrase = inputPassphrase;
         userObj = {
           name: req.body.customSignerName || 'Signatario',
           ci: req.body.customSignerCi || '',
@@ -309,19 +341,10 @@ app.post(
           email: req.body.customSignerEmail || '',
         };
       } else {
-        // Fallback: pick the first available user in userStore
-        const users = userStore.getUsers();
-        if (users.length > 0) {
-          const userKeys = userStore.getUserKeyBuffers(users[0].id);
-          p12Buffer = userKeys.p12Buffer;
-          passphrase = userKeys.user.passphrase;
-          userObj = userKeys.user;
-        } else {
-          return res.status(400).json({
-            success: false,
-            error: 'No se seleccionó un usuario ni se adjuntó un archivo .p12 para la firma.',
-          });
-        }
+        return res.status(400).json({
+          success: false,
+          error: 'No se seleccionó un usuario ni se adjuntó un archivo .p12 para la firma.',
+        });
       }
 
       // Execute PAdES Digital Signature

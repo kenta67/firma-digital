@@ -120,6 +120,13 @@ window.UsersModule = {
                   <span>${u.keySize || 2048} bits</span>
                 </div>
                 <div class="user-detail-row">
+                  <span>Contraseña (.p12):</span>
+                  <span style="display: flex; align-items: center; gap: 6px;">
+                    <span id="pass-val-${u.id}" style="font-family: var(--font-mono); font-size: 11.5px; color: var(--cyan-primary);">••••••••</span>
+                    <button class="btn btn-secondary btn-sm" style="padding: 1px 7px; font-size: 10px;" onclick="window.UsersModule.togglePasswordVisibility('${u.id}', '${(u.passphrase || '').replace(/'/g, "\\'")}')">Ver</button>
+                  </span>
+                </div>
+                <div class="user-detail-row">
                   <span>Estado Vigencia:</span>
                   <span style="color: var(--emerald-success); font-weight: 600;">● Activo / Vigente</span>
                 </div>
@@ -322,6 +329,16 @@ window.UsersModule = {
     navigator.clipboard.writeText(fp).then(() => {
       window.App.showToast('Huella digital SHA-256 copiada al portapapeles.', 'info');
     });
+  },
+
+  togglePasswordVisibility(id, pass) {
+    const el = document.getElementById(`pass-val-${id}`);
+    if (!el) return;
+    if (el.textContent === '••••••••') {
+      el.textContent = pass || '123456';
+    } else {
+      el.textContent = '••••••••';
+    }
   },
 };
 

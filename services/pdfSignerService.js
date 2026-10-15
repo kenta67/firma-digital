@@ -402,9 +402,23 @@ export class PdfSignerService {
     const pdfWithPlaceholderBytes = await pdfDoc.save();
 
     // Sign with P12Signer
-    const signer = new P12Signer(p12Buffer, { passphrase });
-    const signPdf = new SignPdf();
-    const signedPdfBuffer = await signPdf.sign(Buffer.from(pdfWithPlaceholderBytes), signer);
+    let signedPdfBuffer;
+    try {
+      const signer = new P12Signer(p12Buffer, { passphrase });
+      const signPdf = new SignPdf();
+      signedPdfBuffer = await signPdf.sign(Buffer.from(pdfWithPlaceholderBytes), signer);
+    } catch (signerErr) {
+      if (
+        signerErr.message &&
+        (signerErr.message.includes('MAC') ||
+          signerErr.message.includes('password') ||
+          signerErr.message.includes('PKCS#12') ||
+          signerErr.message.includes('passphrase'))
+      ) {
+        throw new Error('Contraseña de la llave privada incorrecta. No se pudo descifrar el contenedor PKCS#12.');
+      }
+      throw signerErr;
+    }
 
     // Save signed PDF to records
     const filename = `signed_${Date.now()}_${Math.random().toString(36).substring(2, 6)}.pdf`;
