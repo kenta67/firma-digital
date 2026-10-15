@@ -1,0 +1,92 @@
+[
+  {
+    "id": "user_1792006642137_rlum",
+    "name": "Ing. Carlos Mendoza Alarcon",
+    "ci": "4928192 LP",
+    "organization": "AGENCIA DE GOBIERNO ELECTRONICO (AGETIC)",
+    "unit": "DIRECCION DE TECNOLOGIAS E INFRAESTRUCTURA",
+    "position": "DIRECTOR DE TECNOLOGIAS",
+    "email": "cmendoza@agetic.gob.bo",
+    "city": "La Paz",
+    "country": "BO",
+    "passphrase": "FirmaDigital2026!",
+    "keySize": 2048,
+    "validityDays": 365,
+    "method": "openssl",
+    "serialNumber": "1785a651df946005d5633ba6d44fd3b509213026",
+    "fingerprintSha256": "21:DD:A0:5C:D9:27:30:FE:F0:10:7C:1A:55:01:08:C3:C7:2C:87:3B:00:90:0B:54:6C:45:17:C2:12:9C:93:29",
+    "fingerprintSha1": "1D:FB:0D:19:CF:E1:92:30:FB:6E:DF:CC:AD:6E:B2:14:27:67:C1:99",
+    "validity": {
+      "notBefore": "2026-10-13T19:37:22.000Z",
+      "notAfter": "2027-10-14T19:37:22.000Z",
+      "isActive": true
+    },
+    "createdAt": "2026-10-14T19:37:22.888Z",
+    "keyFiles": {
+      "privateKey": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006642137_rlum\\private.key",
+      "publicKey": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006642137_rlum\\public.pub",
+      "certificate": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006642137_rlum\\certificate.crt",
+      "keystore": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006642137_rlum\\keystore.p12"
+    }
+  },
+  {
+    "id": "user_1792006642889_3joc",
+    "name": "Dra. Patricia Flores Mamani",
+    "ci": "6183920 SC",
+    "organization": "UNIVERSIDAD MAYOR DE SAN ANDRES (UMSA)",
+    "unit": "CARRERA DE INFORMATICA",
+    "position": "INVESTIGADORA Y DOCENTE TITULAR",
+    "email": "pflores@umsa.bo",
+    "city": "La Paz",
+    "country": "BO",
+    "passphrase": "UmsaSegura2026!",
+    "keySize": 2048,
+    "validityDays": 365,
+    "method": "forge",
+    "serialNumber": "11a13beb5ce1",
+    "fingerprintSha256": "FE:45:CB:10:EE:61:D4:1E:16:EB:10:0D:BA:80:C9:E5:6D:AE:03:93:7C:95:2D:DC:BF:81:EA:AC:D0:10:00:72",
+    "fingerprintSha1": "B8:4A:AA:93:45:77:C7:2A:39:0B:C5:54:47:05:2C:42:24:2C:0F:39",
+    "validity": {
+      "notBefore": "2026-10-13T19:37:22.000Z",
+      "notAfter": "2027-10-14T19:37:22.000Z",
+      "isActive": true
+    },
+    "createdAt": "2026-10-14T19:37:23.012Z",
+    "keyFiles": {
+      "privateKey": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006642889_3joc\\private.key",
+      "publicKey": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006642889_3joc\\public.pub",
+      "certificate": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006642889_3joc\\certificate.crt",
+      "keystore": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006642889_3joc\\keystore.p12"
+    }
+  },
+  {
+    "id": "user_1792006643014_6gi9",
+    "name": "Lic. Roberto Choque Gutierrez",
+    "ci": "5392014 CB",
+    "organization": "CONTRALORIA GENERAL DEL ESTADO",
+    "unit": "SUBGERENCIA DE AUDITORIA DE SISTEMAS",
+    "position": "AUDITOR GUBERNAMENTAL",
+    "email": "rchoque@contraloria.gob.bo",
+    "city": "Cochabamba",
+    "country": "BO",
+    "passphrase": "AuditoriaBolivia2026!",
+    "keySize": 2048,
+    "validityDays": 365,
+    "method": "forge",
+    "serialNumber": "11a13beb5d75",
+    "fingerprintSha256": "38:69:23:B4:D5:17:45:12:D8:81:8C:6F:2C:9B:7D:57:30:C9:25:53:22:5D:7D:BC:42:B9:8F:46:07:D6:38:FB",
+    "fingerprintSha1": "50:69:14:80:0E:2D:48:CB:58:E9:92:33:59:CF:9B:70:90:54:20:FA",
+    "validity": {
+      "notBefore": "2026-10-13T19:37:23.000Z",
+      "notAfter": "2027-10-14T19:37:23.000Z",
+      "isActive": true
+    },
+    "createdAt": "2026-10-14T19:37:23.143Z",
+    "keyFiles": {
+      "privateKey": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006643014_6gi9\\private.key",
+      "publicKey": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006643014_6gi9\\public.pub",
+      "certificate": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006643014_6gi9\\certificate.crt",
+      "keystore": "C:\\Users\\kenta\\Desktop\\firma digital\\data\\keys\\user_1792006643014_6gi9\\keystore.p12"
+    }
+  }
+]

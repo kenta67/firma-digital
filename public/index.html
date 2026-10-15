@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FirmaDigital Bolivia Studio - Criptografía PAdES & Validación Oficial</title>
+  <meta name="description" content="Plataforma de generación de llaves OpenSSL, administración de usuarios, firma digital PAdES de PDFs y validación oficial en validar.firmadigital.bo conforme a Ley 164.">
+  <link rel="icon" type="image/svg+xml" href="assets/shield-check.svg">
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- PDF.js CDN for Client-side High-Resolution PDF Rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="header-container">
+    <div class="top-bar">
+      <a href="#" class="brand-wrapper" id="brand-home-link">
+        <div class="brand-shield">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>
+            FirmaDigital Bolivia
+            <span class="brand-badge-bo">LEY 164</span>
+          </h1>
+          <p>Infraestructura de Clave Pública & Firma Digital PAdES de Informes PDF</p>
+        </div>
+      </a>
+
+      <div class="header-status-group">
+        <div class="status-pill" id="openssl-status-pill">
+          <span class="status-dot active"></span>
+          <span id="openssl-version-text">OpenSSL 3.5.3 Activo</span>
+        </div>
+        <div class="status-pill">
+          <span class="status-dot active"></span>
+          <span>Validador Oficial AGETIC Enlace Directo</span>
+        </div>
+        <a href="https://validar.firmadigital.bo/#/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" id="btn-external-validator">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          validar.firmadigital.bo
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs Bar -->
+    <nav class="nav-tabs-wrapper" role="tablist">
+      <button class="nav-tab-btn active" data-tab="tab-users" id="tab-nav-users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        1. Usuarios y Firmas
+      </button>
+
+      <button class="nav-tab-btn" data-tab="tab-keys" id="tab-nav-keys">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="7.5" cy="15.5" r="5.5"></circle>
+          <path d="m21 2-9.6 9.6"></path>
+          <path d="m15.5 7.5 3 3L22 7l-3-3"></path>
+        </svg>
+        2. Laboratorio OpenSSL
+      </button>
+
+      <button class="nav-tab-btn" data-tab="tab-signer" id="tab-nav-signer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+        3. Firmar Informe PDF
+      </button>
+
+      <button class="nav-tab-btn" data-tab="tab-viewer" id="tab-nav-viewer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        4. Visualizador de PDF
+      </button>
+
+      <button class="nav-tab-btn" data-tab="tab-validator" id="tab-nav-validator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <polyline points="9 12 12 15 22 4"></polyline>
+        </svg>
+        5. Validación Oficial AGETIC
+      </button>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-wrapper">
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: GESTIÓN DE USUARIOS Y FIRMAS                            -->
+    <!-- ============================================================== -->
+    <section class="tab-pane active" id="tab-users">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            Gestión de Usuarios y Firmas Digitales
+            <span class="brand-badge-bo" id="users-count-badge">3 Usuarios</span>
+          </h2>
+          <p>Cree y administre múltiples usuarios firmantes con sus respectivos pares de llaves (Pública / Privada) y certificados X.509 listos para firmar documentos.</p>
+        </div>
+        <button class="btn btn-primary" id="btn-open-create-user-modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Crear Nuevo Usuario y Llaves
+        </button>
+      </div>
+
+      <!-- Quick Metrics Bar -->
+      <div class="grid-3" style="margin-bottom: 24px;">
+        <div class="glass-card" style="padding: 16px 20px;">
+          <div style="font-size: 11.5px; color: var(--text-faint); text-transform: uppercase; font-weight: 600;">Algoritmo Asimétrico</div>
+          <div style="font-size: 20px; font-weight: 700; color: #fff; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+            RSA 2048 / 4096 bits
+            <span class="indicator-badge success" style="margin: 0; font-size: 10px;">PKCS#1 v2.1</span>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding: 16px 20px;">
+          <div style="font-size: 11.5px; color: var(--text-faint); text-transform: uppercase; font-weight: 600;">Formato de Keystore</div>
+          <div style="font-size: 20px; font-weight: 700; color: var(--cyan-primary); margin-top: 4px;">
+            PKCS#12 (.p12 / .pfx)
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding: 16px 20px;">
+          <div style="font-size: 11.5px; color: var(--text-faint); text-transform: uppercase; font-weight: 600;">Estándar de Certificado</div>
+          <div style="font-size: 20px; font-weight: 700; color: var(--emerald-success); margin-top: 4px;">
+            X.509 v3 (Metadatos Bolivia)
+          </div>
+        </div>
+      </div>
+
+      <!-- User Cards Grid -->
+      <div class="grid-cards" id="users-cards-container">
+        <!-- Rendered via users.js -->
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: LABORATORIO OPENSSL                                     -->
+    <!-- ============================================================== -->
+    <section class="tab-pane" id="tab-keys">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>Laboratorio Criptográfico OpenSSL (Generador de Llaves)</h2>
+          <p>Herramienta interactiva para generar pares de llaves y certificados X.509 vía CLI OpenSSL en tiempo real con registro de comandos ejecutados.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Generator Form Card -->
+        <div class="glass-card">
+          <h3 style="font-size: 17px; margin-bottom: 16px; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            Parámetros del Par de Llaves
+          </h3>
+
+          <form id="standalone-keys-form">
+            <div class="form-group">
+              <label class="form-label" for="sk-name">Nombre Completo del Titular</label>
+              <input type="text" id="sk-name" class="form-control" value="ING. KENTA TAKAHASHI" required>
+            </div>
+
+            <div class="grid-2" style="gap: 12px;">
+              <div class="form-group">
+                <label class="form-label" for="sk-ci">Cédula de Identidad (C.I.)</label>
+                <input type="text" id="sk-ci" class="form-control" value="7894561 LP" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="sk-email">Correo Electrónico</label>
+                <input type="email" id="sk-email" class="form-control" value="ktakahashi@entidad.bo" required>
+              </div>
+            </div>
+
+            <div class="grid-2" style="gap: 12px;">
+              <div class="form-group">
+                <label class="form-label" for="sk-org">Organización / Entidad</label>
+                <input type="text" id="sk-org" class="form-control" value="UNIVERSIDAD MAYOR DE SAN ANDRES">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="sk-unit">Unidad / Carrera</label>
+                <input type="text" id="sk-unit" class="form-control" value="INFORMATICA">
+              </div>
+            </div>
+
+            <div class="grid-2" style="gap: 12px;">
+              <div class="form-group">
+                <label class="form-label" for="sk-position">Cargo Oficial</label>
+                <input type="text" id="sk-position" class="form-control" value="DOCENTE INVESTIGADOR">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="sk-passphrase">Contraseña de Protección (.p12)</label>
+                <input type="password" id="sk-passphrase" class="form-control" value="Seguridad2026!">
+              </div>
+            </div>
+
+            <div class="grid-2" style="gap: 12px;">
+              <div class="form-group">
+                <label class="form-label" for="sk-keysize">Tamaño de Llave RSA</label>
+                <select id="sk-keysize" class="form-select">
+                  <option value="2048" selected>RSA 2048 bits (Estándar recomendado)</option>
+                  <option value="4096">RSA 4096 bits (Alta seguridad militar)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="sk-method">Motor Criptográfico</label>
+                <select id="sk-method" class="form-select">
+                  <option value="openssl" selected>OpenSSL 3.5 CLI (Ejecución Binaria Real)</option>
+                  <option value="forge">Motor Nativo JavaScript (WebCrypto / Forge)</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-generate-standalone" style="width: 100%; margin-top: 10px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              Ejecutar Generación con OpenSSL
+            </button>
+          </form>
+        </div>
+
+        <!-- Terminal & Inspector Card -->
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+          <!-- Live Terminal Window -->
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <span class="term-dot red"></span>
+              <span class="term-dot yellow"></span>
+              <span class="term-dot green"></span>
+              <span class="terminal-title">Consola de Comandos OpenSSL 3.5</span>
+            </div>
+            <div class="terminal-body" id="standalone-terminal-log">
+              <div class="term-cmd">$ openssl version</div>
+              <div class="term-out">OpenSSL 3.5.3 16 Sep 2025 (Library: OpenSSL 3.5.3)</div>
+              <div class="term-cmd"># Esperando ejecución de parámetros para iniciar proceso criptográfico...</div>
+            </div>
+          </div>
+
+          <!-- PEM Viewer Tabs -->
+          <div class="glass-card" style="padding: 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div style="display: flex; gap: 8px;" id="pem-tab-buttons">
+                <button class="btn btn-sm btn-secondary active" data-pem-target="pem-priv" id="btn-tab-priv">Llave Privada</button>
+                <button class="btn btn-sm btn-secondary" data-pem-target="pem-pub" id="btn-tab-pub">Llave Pública</button>
+                <button class="btn btn-sm btn-secondary" data-pem-target="pem-crt" id="btn-tab-crt">Certificado X.509</button>
+              </div>
+              <button class="btn btn-sm btn-secondary" id="btn-copy-pem" title="Copiar al portapapeles">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copiar
+              </button>
+            </div>
+
+            <pre class="pem-display-box" id="pem-content-viewer">-----BEGIN RSA PRIVATE KEY-----
+Presione "Ejecutar Generación con OpenSSL" para crear el par de llaves y ver el contenido PEM aquí en tiempo real.
+-----END RSA PRIVATE KEY-----</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: FIRMADOR DE DOCUMENTOS PDF                              -->
+    <!-- ============================================================== -->
+    <section class="tab-pane" id="tab-signer">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>Firmar Digitalmente Informe PDF con Llave Privada</h2>
+          <p>Firme digitalmente un informe en formato PDF aplicando el estándar oficial PAdES con estampado visual, código QR y metadatos verificables.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Signer Controls Card -->
+        <div class="glass-card">
+          <h3 style="font-size: 17px; margin-bottom: 16px; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            1. Selección de Documento PDF
+          </h3>
+
+          <!-- PDF Choice Radios -->
+          <div style="display: flex; gap: 14px; margin-bottom: 16px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main);">
+              <input type="radio" name="pdf-source-choice" value="sample" checked id="pdf-choice-sample">
+              <span>Generar Informe Técnico de Prueba</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main);">
+              <input type="radio" name="pdf-source-choice" value="upload" id="pdf-choice-upload">
+              <span>Subir Documento PDF Propio</span>
+            </label>
+          </div>
+
+          <!-- Sample Report Form -->
+          <div id="sample-pdf-config-box">
+            <div class="form-group">
+              <label class="form-label" for="report-title-input">Título del Informe</label>
+              <input type="text" id="report-title-input" class="form-control" value="INFORME TÉCNICO DE AUDITORÍA Y SEGURIDAD INFORMÁTICA">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="report-code-input">Código Oficial</label>
+              <input type="text" id="report-code-input" class="form-control" value="INF-TIC-2026-089">
+            </div>
+          </div>
+
+          <!-- Custom PDF Upload Dropzone -->
+          <div id="upload-pdf-box" style="display: none;">
+            <div style="border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: var(--radius-md); padding: 24px; text-align: center; cursor: pointer; background: rgba(0, 0, 0, 0.2);" id="pdf-dropzone">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="1.5" style="margin-bottom: 8px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div style="font-weight: 600; color: #fff;">Haga clic o arrastre su archivo PDF aquí</div>
+              <div style="font-size: 11.5px; color: var(--text-faint); margin-top: 4px;">Archivos admitidos: .pdf (máximo 25 MB)</div>
+              <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;">
+              <div id="selected-file-label" style="font-family: var(--font-mono); font-size: 12px; color: var(--emerald-success); margin-top: 8px;"></div>
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 20px 0;">
+
+          <h3 style="font-size: 17px; margin-bottom: 16px; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="7.5" cy="15.5" r="5.5"></circle>
+              <path d="m21 2-9.6 9.6"></path>
+              <path d="m15.5 7.5 3 3L22 7l-3-3"></path>
+            </svg>
+            2. Configuración del Signatario y Parámetros
+          </h3>
+
+          <div class="form-group">
+            <label class="form-label" for="select-signing-user">Seleccionar Usuario Firmante</label>
+            <select id="select-signing-user" class="form-select">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <div class="grid-2" style="gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="signing-reason">Motivo de la Firma</label>
+              <input type="text" id="signing-reason" class="form-control" value="Aprobación y conformidad de informe técnico">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="signing-location">Lugar de Emisión</label>
+              <input type="text" id="signing-location" class="form-control" value="La Paz, Bolivia">
+            </div>
+          </div>
+
+          <!-- Visual Stamp Settings -->
+          <div class="glass-card" style="padding: 14px 18px; margin-bottom: 18px; background: rgba(0, 0, 0, 0.25);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <div style="font-weight: 600; font-size: 13px; color: #fff;">Estampado Visual de Firma Digital</div>
+                <div style="font-size: 11.5px; color: var(--text-muted);">Inserta sello oficial con QR que enlaza a validar.firmadigital.bo</div>
+              </div>
+              <label class="switch-label">
+                <input type="checkbox" id="toggle-visual-stamp" class="switch-input" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div id="stamp-position-controls" style="margin-top: 12px; display: flex; align-items: center; gap: 12px;">
+              <label class="form-label" for="stamp-position-select" style="margin: 0;">Posición:</label>
+              <select id="stamp-position-select" class="form-select" style="padding: 6px 10px; font-size: 12.5px;">
+                <option value="bottom-right" selected>Inferior Derecha (Recomendado)</option>
+                <option value="bottom-left">Inferior Izquierda</option>
+                <option value="top-right">Superior Derecha</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sign Action Button -->
+          <button class="btn btn-success btn-lg" id="btn-execute-sign-pdf" style="width: 100%;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            Firmar Digitalmente el Documento (PAdES)
+          </button>
+        </div>
+
+        <!-- Signing Result / Preview Card -->
+        <div class="glass-card" id="signing-result-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h3 style="font-size: 17px; margin-bottom: 16px; color: #fff; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              Estado de la Firma Digital
+            </h3>
+
+            <!-- Placeholder State -->
+            <div id="signing-placeholder-state" style="text-align: center; padding: 50px 20px; color: var(--text-faint);">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="opacity: 0.3; margin-bottom: 12px;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <p style="font-size: 14px;">El documento aún no ha sido firmado.</p>
+              <p style="font-size: 12px; margin-top: 4px;">Seleccione el usuario y presione "Firmar Digitalmente el Documento".</p>
+            </div>
+
+            <!-- Success Content -->
+            <div id="signing-success-content" style="display: none;">
+              <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid var(--border-emerald); border-radius: var(--radius-md); padding: 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 14px;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--emerald-success); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-weight: 700; color: #fff; font-size: 15px;">Documento Firmado Exitosamente</div>
+                  <div style="font-size: 12px; color: var(--text-muted);" id="signing-success-meta">Formato PAdES con certificado digital incrustado.</div>
+                </div>
+              </div>
+
+              <!-- Hashes info -->
+              <div class="user-detail-row">
+                <span>Signatario:</span>
+                <span id="res-signer-name">-</span>
+              </div>
+              <div class="user-detail-row">
+                <span>C.I. / Entidad:</span>
+                <span id="res-signer-org">-</span>
+              </div>
+              <div class="user-detail-row">
+                <span>Fecha Oficial de Firma:</span>
+                <span id="res-signer-date">-</span>
+              </div>
+              <div class="user-detail-row">
+                <span>Tamaño del PDF:</span>
+                <span id="res-pdf-size">-</span>
+              </div>
+
+              <div style="margin-top: 14px;">
+                <div style="font-size: 11px; color: var(--text-faint); margin-bottom: 4px;">RESUMEN CRIPTOGRÁFICO SHA-256:</div>
+                <div style="font-family: var(--font-mono); font-size: 10.5px; background: rgba(0, 0, 0, 0.4); padding: 8px 10px; border-radius: 4px; color: var(--cyan-primary); word-break: break-all;" id="res-sha256-hash">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <div id="signing-success-actions" style="display: none; padding-top: 20px; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <button class="btn btn-primary" id="btn-view-signed-pdf-in-viewer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Ver en Visualizador
+              </button>
+
+              <a href="/api/pdf/latest/signed" class="btn btn-secondary" id="btn-download-signed-pdf" download="informe_firmado.pdf">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Descargar PDF Firmado
+              </a>
+            </div>
+
+            <!-- Direct Validation Button -->
+            <button class="btn btn-success" id="btn-validate-now-from-signer" style="padding: 12px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <polyline points="9 12 12 15 22 4"></polyline>
+              </svg>
+              Validar en Tiempo Real en validar.firmadigital.bo
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: VISUALIZADOR DE PDF                                     -->
+    <!-- ============================================================== -->
+    <section class="tab-pane" id="tab-viewer">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>Visualizador Integrado de Documentos PDF</h2>
+          <p>Examine el documento con renderizado de alta fidelidad, controle el zoom, navegue entre páginas y compare el PDF original vs el firmado.</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <a href="/api/pdf/latest/signed" class="btn btn-secondary btn-sm" id="btn-viewer-download" download="documento.pdf">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Descargar Documento
+          </a>
+        </div>
+      </div>
+
+      <!-- Viewer Container -->
+      <div class="viewer-layout">
+        <!-- Toolbar -->
+        <div class="viewer-toolbar">
+          <div class="viewer-tool-group">
+            <button class="viewer-tool-btn active" id="viewer-btn-show-signed">✍️ Documento Firmado</button>
+            <button class="viewer-tool-btn" id="viewer-btn-show-original">📄 Documento Original</button>
+          </div>
+
+          <!-- Page Navigation -->
+          <div class="viewer-tool-group">
+            <button class="viewer-tool-btn" id="viewer-prev-page" title="Página Anterior">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <span class="viewer-page-indicator" id="viewer-page-counter">Página 1 de 1</span>
+            <button class="viewer-tool-btn" id="viewer-next-page" title="Página Siguiente">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Zoom & Render Controls -->
+          <div class="viewer-tool-group">
+            <button class="viewer-tool-btn" id="viewer-zoom-out" title="Reducir Zoom">🔍 -</button>
+            <span class="viewer-page-indicator" id="viewer-zoom-level">100%</span>
+            <button class="viewer-tool-btn" id="viewer-zoom-in" title="Aumentar Zoom">🔍 +</button>
+            <button class="viewer-tool-btn" id="viewer-zoom-fit" title="Ajustar al Ancho">Ajustar Ancho</button>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="viewer-canvas-container" id="viewer-viewport">
+          <div class="pdf-canvas-wrapper" id="pdf-canvas-wrapper">
+            <canvas id="pdf-canvas"></canvas>
+          </div>
+          <!-- Fallback iframe container -->
+          <iframe id="pdf-fallback-iframe" class="viewer-iframe" style="display: none;"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- TAB 5: VALIDACIÓN OFICIAL AGETIC                               -->
+    <!-- ============================================================== -->
+    <section class="tab-pane" id="tab-validator">
+      <!-- Validator Hero -->
+      <div class="validator-hero">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span class="brand-badge-bo">SERVICIO WEB OFICIAL</span>
+              <span style="font-size: 12px; color: var(--cyan-primary); font-family: var(--font-mono);">https://validar.firmadigital.bo/backend/validador/pdf</span>
+            </div>
+            <h2 style="font-size: 22px; font-weight: 700; color: #fff;">Validador de Firma Digital de Bolivia (AGETIC)</h2>
+            <p style="font-size: 13.5px; color: var(--text-muted); max-width: 720px; margin-top: 4px;">
+              Compruebe la validez legal, integridad del archivo y cadena de confianza del PDF firmado conforme a la Infraestructura de Clave Pública del Estado Plurinacional de Bolivia.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btn-validate-latest-pdf">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+              Validar Documento Firmado Actual
+            </button>
+
+            <a href="https://validar.firmadigital.bo/#/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              Abrir Portal Web Oficial
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Results Box -->
+      <div id="validator-results-container">
+        <!-- Initial prompt -->
+        <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="1.5" style="margin-bottom: 12px; opacity: 0.7;">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <h3 style="font-size: 17px; color: #fff; font-weight: 700;">Haga clic en "Validar Documento Firmado Actual"</h3>
+          <p style="font-size: 13px; color: var(--text-muted); max-width: 600px; margin: 8px auto 0;">
+            El sistema se comunicará directamente con el motor criptográfico oficial de Firma Digital Bolivia y mostrará en tiempo real el resultado de los 4 filtros de seguridad.
+          </p>
+        </div>
+      </div>
+
+      <!-- How to validate manually on AGETIC portal -->
+      <div class="glass-card" style="margin-top: 24px; padding: 22px;">
+        <h3 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          ¿Cómo comprobar la firma manualmente en https://validar.firmadigital.bo/#/?
+        </h3>
+        <ol style="margin-left: 20px; font-size: 13px; color: var(--text-muted); line-height: 1.8;">
+          <li>Haga clic en <strong>"Descargar PDF Firmado"</strong> para guardar el archivo firmado en su computadora.</li>
+          <li>Ingrese al portal estatal <a href="https://validar.firmadigital.bo/#/" target="_blank" rel="noopener noreferrer" style="color: var(--cyan-primary); text-decoration: underline;">https://validar.firmadigital.bo/#/</a>.</li>
+          <li>Arrastre el archivo PDF al área central o haga clic en <em>"Examinar"</em> y presione el botón <em>"Validar"</em>.</li>
+          <li>El validador de AGETIC procesará la firma PAdES, certificando:
+            <ul style="margin-left: 20px; margin-top: 4px;">
+              <li><strong style="color: var(--emerald-success);">Documento auténtico (VÁLIDO):</strong> Certifica que el documento no ha sufrido ninguna modificación ni alteración.</li>
+              <li><strong style="color: var(--emerald-success);">Periodo de vigencia (VÁLIDO):</strong> Certifica que fue firmado dentro del periodo de vigencia del par de llaves.</li>
+              <li><strong style="color: var(--cyan-primary);">Identidad del Signatario:</strong> Reconoce el Nombre, C.I., Cargo y Organización especificados en el par de llaves OpenSSL.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: CREAR NUEVO USUARIO Y FIRMA                            -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="modal-create-user">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Registrar Nuevo Usuario Firmante y Llaves</h3>
+        <button class="modal-close-btn" id="btn-close-modal-create-user">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form id="create-user-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="new-user-name">Nombres y Apellidos Completos</label>
+            <input type="text" id="new-user-name" class="form-control" placeholder="Ej. MARIO VARGAS LLANOS" required>
+          </div>
+
+          <div class="grid-2" style="gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="new-user-ci">Cédula de Identidad (C.I.)</label>
+              <input type="text" id="new-user-ci" class="form-control" placeholder="Ej. 6543210 LP" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-user-email">Correo Electrónico</label>
+              <input type="email" id="new-user-email" class="form-control" placeholder="usuario@entidad.bo" required>
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="new-user-org">Entidad / Institución</label>
+              <input type="text" id="new-user-org" class="form-control" placeholder="Ej. ADSIB / UMSA / MINISTERIO" value="ADSIB BOLIVIA">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-user-unit">Unidad Organizacional</label>
+              <input type="text" id="new-user-unit" class="form-control" placeholder="Ej. GERENCIA DE TECNOLOGIA" value="DIRECCION GENERAL">
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="new-user-position">Cargo Oficial</label>
+              <input type="text" id="new-user-position" class="form-control" placeholder="Ej. AUDITOR DE SISTEMAS" value="INGENIERO DE SISTEMAS">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-user-city">Ciudad / Sede</label>
+              <input type="text" id="new-user-city" class="form-control" value="La Paz">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="new-user-passphrase">Contraseña / PIN del Keystore (.p12)</label>
+            <input type="password" id="new-user-passphrase" class="form-control" value="Firma2026!" required>
+            <div class="form-hint">Esta clave protegerá la llave privada en formato PKCS#12 al momento de firmar.</div>
+          </div>
+
+          <div class="grid-2" style="gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="new-user-keysize">Tamaño de Llave</label>
+              <select id="new-user-keysize" class="form-select">
+                <option value="2048" selected>RSA 2048 bits</option>
+                <option value="4096">RSA 4096 bits</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-user-method">Método de Creación</label>
+              <select id="new-user-method" class="form-select">
+                <option value="openssl" selected>OpenSSL CLI (Recomendado)</option>
+                <option value="forge">Motor Criptográfico Nativo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-create-user">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-create-user">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Generar Usuario y Par de Llaves
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: DETALLES DE CERTIFICADO DIGITAL X.509                   -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="modal-cert-details">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="cert-modal-title">Detalles del Certificado Digital X.509</h3>
+        <button class="modal-close-btn" id="btn-close-modal-cert-details">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body" id="cert-modal-body">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-close-cert-details-footer">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Application Logic Modules -->
+  <script src="js/app.js"></script>
+  <script src="js/users.js"></script>
+  <script src="js/keys.js"></script>
+  <script src="js/signer.js"></script>
+  <script src="js/viewer.js"></script>
+</body>
+</html>
